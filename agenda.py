@@ -53,6 +53,7 @@ def Confirm():
 
 #Procura uma data na string, se contém retorna a primeira encontrada. Formatada em dd/mm/yyyy
 def FindDate(text):
+    #traduzimos o texto para inglês, pois a lib datefind somente entende data em inglês
     translateEn = translator.translate(text, dest= 'en', src ='pt')
     matches = df.find_dates(translateEn.text)
     for match in matches:
@@ -172,8 +173,3 @@ while(text != "desligar"):
         print("Não foi possível requisitar o pedido: {0}".format(e))
     except sr.UnknownValueError:
         print("Um erro desconhecido ocorreu")
-
-
-
-
-
