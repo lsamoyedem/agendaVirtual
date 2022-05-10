@@ -4,6 +4,4 @@
 17/05/2022;prova de engenharia
 16/05/2022;festa
 20/05/2022;aniversário
-13/04/2022;casamento
 10/05/2022;exame
-10/05/2022;trabalho de
