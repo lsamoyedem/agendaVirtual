@@ -33,7 +33,7 @@ def Listening():
         except sr.RequestError as e:
             print("Não foi possível requisitar o pedido: {0}".format(e))
         except:
-            print("Erro") 
+            print("Um erro desconhecido ocorreu") 
 
 #Espera uma confirmação do usuário através de voz, se 'sim', retorna True, se 'não' retorna False 
 def Confirm():
