@@ -1,8 +1,6 @@
-from operator import contains
 import speech_recognition as sr
 import pyttsx3
 import datefinder as df
-import difflib as dif
 import re
 from googletrans import Translator
 
@@ -10,7 +8,7 @@ from googletrans import Translator
 recog = sr.Recognizer()
 translator = Translator()
 
-#Fala o texto passado e também retorna no console
+#trasnsforma o texto em audio e também imprime no console
 def SpeakText(text):
     out = pyttsx3.init()
     out.say(text)
@@ -53,7 +51,7 @@ def Confirm():
 
 #Procura uma data na string, se contém retorna a primeira encontrada. Formatada em dd/mm/yyyy
 def FindDate(text):
-    #traduzimos o texto para inglês, pois a lib datefind somente entende data em inglês
+    #traduzimos o texto para inglês, pois a lib datefinder somente suporta datas em inglês
     translateEn = translator.translate(text, dest= 'en', src ='pt')
     matches = df.find_dates(translateEn.text)
     for match in matches:
@@ -77,7 +75,7 @@ def ReadDate():
 def ReadDescription():
     while(True):
         try:
-            SpeakText("Diga a descrição do evento:") 
+            SpeakText("Diga a descrição:") 
             descText = Listening()
             return descText
         except:
@@ -96,10 +94,11 @@ def CreateEvent(date):
     desc = ReadDescription()
     SpeakText("Confirma a criação do evento " + desc + " na data " + date + "?")
     if Confirm():
-        SpeakText("Evento salvo!")
+        #salva o agendamento em um arquivo .txt com o seguinte formato dd/MM/yyyy;descrição;
         f = open("dados.txt", "a")
         f.write(date + ";" + desc + "\n")
         f.close()
+        SpeakText("Evento salvo!")
 
 #Lista os eventos através da voz, tanto por data quanto pela descrição
 def ReadEvents():
@@ -107,6 +106,7 @@ def ReadEvents():
     text = Listening()
     date = FindDate(text)
     if date is None:
+        #se não encontrou nenhuma data no texto, buscamos por descrição no arquivo
         with open('dados.txt') as f:
             lista = []
             for line in f.readlines():
@@ -121,6 +121,7 @@ def ReadEvents():
             else:
                 SpeakText("Não encontrei nenhum evento com a descrição " + text)
     else:
+        #se encontrou alguma data no texto, buscamos por ela no aqruivo
         with open('dados.txt') as f:
             lista = []
             for line in f.readlines():
@@ -128,28 +129,23 @@ def ReadEvents():
                 if dateLine == date:
                    lista.append(line.split(";")[0] + ": " + line.split(";")[1])
             if len(lista) > 0:
-                SpeakText("Encontrei os seguintes eventos para a data " + date + ":")
+                SpeakText("Encontrei os seguintes agendamentos para a data " + date + ":")
                 for desc in lista:
                     SpeakText(desc)
             else:
-                SpeakText("Não encontrei nenhum evento na data " + date )
+                SpeakText("Não encontrei nenhum agendamentos na data " + date )
 
 #Recebe os comandos a serem executados
 def Command(command):
     command = command.lower()
-    resposta = dif.get_close_matches(command.lower(), ["criar evento", "listar evento", "desligar", "ajuda"])
-    compare = ""
-    if len(resposta) > 0:
-        compare = resposta[0]
-
-    if compare == "desligar":
+    if ContainsStr(command,"desligar"):
        SpeakText("Ok! Estou desligando...")
-    elif compare == "criar evento":
+    elif ContainsStr(command,"criar evento"):
         date = FindDate(command) 
         CreateEvent(date)
-    elif compare == "listar evento":
+    elif ContainsStr(command,"listar evento"):
         ReadEvents()
-    elif compare == "ajuda":
+    elif ContainsStr(command,"ajuda"):
          SpeakText("Você pode dizer os seguintes comandos:\n"
                    + " Criar Evento, para criar um evento em uma data específica;\n"
                    + " Listar Evento, para listar os eventos de uma data, ou listar as datas através de uma descrição;\n"
